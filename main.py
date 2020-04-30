@@ -5,6 +5,7 @@ from sym_api_client_python.configure.configure import SymConfig
 from sym_api_client_python.auth.rsa_auth import SymBotRSAAuth
 from sym_api_client_python.clients.sym_bot_client import SymBotClient
 from sym_api_client_python.clients.stream_client import StreamClient
+from sym_api_client_python.clients.user_client import UserClient
 
 
 def configure_logging():
@@ -33,13 +34,14 @@ def main():
     # Initialize SymBotClient with auth and configure objects
     bot_client = SymBotClient(auth, configure)
     stream_client = StreamClient(bot_client)
+    user_client = UserClient(bot_client)
 
     # Retrieve list of streams
     print('Retrieve All External Active Streams...')
     logging.info('Retrieve All External Active Streams...')
 
     external_steams = retrieve_active_external_streams(stream_client)
-
+    
     print(f'Retrieved {str(len(external_steams["streams"]))} streams')
     logging.info(f'Retrieved {str(len(external_steams["streams"]))} streams')
 
@@ -68,14 +70,24 @@ def main():
             else:
                 if 'company' in member['user']:
                     s['externalCompanyName'] = member['user']['company']
+                elif 'companyId' in member['user'] and member['user']['companyId'] == 1018:
+                    s['externalCompanyName'] = "Symphony Public Pod"
 
-            if member['isCreator'] and 'displayName' in member['user']:
-                s['roomCreatorName'] = member['user']['displayName']
+
+            if member['isCreator']:
+                if 'displayName' in member['user']:
+                    s['roomCreatorName'] = f"{member['user']['displayName']} ({member['user']['company']})"
 
             # Skip the rest if already found 2 internal users
             if internal_count >= 2 and s['externalCompanyName'] != "N/A" and s['roomCreatorName'] != "N/A":
                 logging.debug(f'{stream_id} meets criteria..PASSED!')
                 break
+
+        if s['origin'] == "EXTERNAL":
+            s['externalCompanyName'] = s['attributes']['originCompany']
+
+        if s['roomCreatorName'] == "N/A":
+            s['roomCreatorName'] = retrieve_user_info(user_client, s['attributes']['createdByUserId'])
 
         if internal_count < 2:
             logging.debug(f'{stream_id} does not meet criteria..FAILED')
@@ -117,6 +129,17 @@ def print_result(stream_list):
                                  'Ext Counterparty Name': s["externalCompanyName"]})
 
     return
+
+
+def retrieve_user_info(user_client, user_id):
+    user_id_list = [user_id]
+
+    output = user_client.get_users_from_id_list(user_id_list)
+
+    if output != []:
+        return f"{output['users'][0]['displayName']} ({output['users'][0]['company']})"
+    else:
+        return "N/A"
 
 
 def retrieve_active_external_streams(stream_client):
