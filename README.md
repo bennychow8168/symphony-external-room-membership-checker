@@ -15,10 +15,10 @@ The CSV file will contain following columns:
 - Ext Counterparty Name
 
 ## Known limitations
-Room Creator will be N/A:
+Room Created By will be N/A:
 - When creator is external and deactivated
 
-External Company Name will be N/A:
+Ext Counterparty Name will be N/A:
 - When all external members left
 - When all external member deactivated
 
@@ -63,6 +63,7 @@ You also need to update based on the service account created above:
 - botUsername
 - botEmailAddress
 
+Sample:
 
     {
       "sessionAuthHost": "<pod>.symphony.com",

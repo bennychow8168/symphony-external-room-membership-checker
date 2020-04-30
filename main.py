@@ -41,7 +41,7 @@ def main():
     logging.info('Retrieve All External Active Streams...')
 
     external_steams = retrieve_active_external_streams(stream_client)
-    
+
     print(f'Retrieved {str(len(external_steams["streams"]))} streams')
     logging.info(f'Retrieved {str(len(external_steams["streams"]))} streams')
 
