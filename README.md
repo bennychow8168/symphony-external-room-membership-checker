@@ -14,6 +14,8 @@ The CSV file will contain following columns:
 - Room Created By
 - Ext Counterparty Name
 
+The output file will be saved in the root directory in format - ``result_YYYY-MM-dd_HHmmSS.csv``
+
 ## Known limitations
 Room Created By will be N/A:
 - When creator is external and deactivated
@@ -101,7 +103,9 @@ Sample:
       "truststorePath": ""
     }
 
-
+### 4 - Run script
+The script can be executed by running
+``python3 main.py`` 
 
 
 
