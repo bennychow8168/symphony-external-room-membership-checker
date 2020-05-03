@@ -47,6 +47,8 @@ and [RSA Public/Private Key Pair Authentication](https://symphony-developers.sym
 
 **RSA Public/Private Key Pair** is the recommended authentication mechanism by Symphony, due to its robust security and simplicity.
 
+**Important** - The service account must have **User Provisioning** role in order to work.
+
 ### 2 - Upload Service Account Private Key
 Please copy the Service Account private key file (*.pem) to the **rsa** folder. You will need to configure this in the next step.
 

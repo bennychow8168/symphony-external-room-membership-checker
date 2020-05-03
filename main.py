@@ -54,7 +54,7 @@ def main():
         stream_id = s['id']
 
         # Get memberships in each stream
-        memberships = get_all_stream_members(bot_client, stream_id)
+        memberships = get_all_stream_members(stream_client, stream_id)
 
         # Check if each stream contains at least 2 internal users
         internal_count = 0
@@ -151,33 +151,15 @@ def retrieve_active_external_streams(stream_client):
     return output
 
 
-def get_all_stream_members(bot_client, stream_id):
-    memberships = json.loads(json.dumps(get_stream_members(bot_client, stream_id, skip=0, limit=100)))
+def get_all_stream_members(stream_client, stream_id):
+    memberships = json.loads(json.dumps(stream_client.get_stream_members(stream_id, skip=0, limit=100)))
     while len(memberships["members"]) < memberships["count"]:
         next_members = json.loads(json.dumps(
-            get_stream_members(bot_client, stream_id, skip=int(len(memberships["members"])), limit=100)))
+            stream_client.get_stream_members(stream_id, skip=int(len(memberships["members"])), limit=100)))
         for index in range(len(next_members["members"])): memberships["members"].append(
             next_members["members"][index])
 
     return memberships
-
-
-def get_stream_members(bot_client, stream_id, skip=0, limit=100):
-    """
-    Returns a list of all the current members of a stream (IM, MIM, or chatroom
-    Required Permissions:
-    To get the stream membership of any stream in your enterprise, you should
-    call this endpoint with a Service User account with the User Provisioning role.
-    The Service User does not need to be a member of the stream.
-    See Permissions for a list of roles and associated privileges.
-    """
-    logging.debug('StreamClient/get_stream_members()')
-    url = '/pod/v1/admin/stream/{0}/membership/list'.format(stream_id)
-    params = {
-        'skip': skip,
-        'limit': limit
-    }
-    return bot_client.execute_rest_call('GET', url, params=params)
 
 
 if __name__ == "__main__":
